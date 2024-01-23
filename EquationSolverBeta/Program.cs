@@ -35,29 +35,17 @@ namespace cSolverBeta
 
             for (int i = 1; i <= n; i++)//x^(n-i)の係数を求める
             {
-                for (int j = 0; j < n; j++)//j+1個目の( )とそれ以降をかける
-                {
-                    for (int j_ = j; j_ < n; j_++)//
-                    {
-                        double tmp = -roots[j];
-                        int c = 1;
-                        //Console.WriteLine($"x^{n - i}/{i}/{j}/k {tmp}");
-                        for (int k = j + 1; k < n && c < i; k++)//i回かける//↑とk+1個目の( )をかける
-                        {
-
-                            tmp *= -roots[k];
-                            c++;
-                            Console.WriteLine($"x^{n - i}/i:{i}/j:{j}/k:{k} t:{tmp} c:{c}  *{k}({tmp / -roots[k]}*{-roots[k]}={tmp})");
-                        }
-                        if (c == i)//定数項個数はiと等しい (x+1)(x+2)(x+3)でi=2(=xの項になる)のとき2回
-                            coefficients[i] += tmp;
-
-
-                    }
-                }
-            }//todo:諦めて参照するインデックスの配列を作る([0,1],[0,2],...)
-
-            return coefficients;
+              var coefficient = CreateCombinations(roots,i);
+              foreach(var combi_tmp in coefficient)
+              {
+                  double coefficientTmp = 1;
+                  foreach(var value in conbi_tmp)
+                      coefficientTmp*=value;
+                  coefficient+=coefficientTmp;
+              }
+              coefficients[i]=coefficient;
+          }
+        return coefficients;
         }
 
         static int NCR(int n, int r)
@@ -94,5 +82,30 @@ namespace cSolverBeta
             var x2 = (-a2 - root) / (2 * a1);
             return new Complex[] { x1, x2 };
         }
+
+            static List<List<double>> CreateCombinations(double[] numbers, int r)
+    {
+        List<List<double>> result = new List<List<double>>();
+        List<double> combinationTmp = new List<double>();
+
+        CreateCombinations(numbers, r, 0, combinationTmp, result);
+
+        return result;
+    }
+    static void CreateCombinations(double[] numbers, int r_tmp, int start, List<double> combinationTmp, List<List<double>> result)
+    {
+        if (r_tmp == 0)// r個の要素を選び終わった
+        {
+            result.Add(new List<double>(combinationTmp));
+            return;
+        }
+
+        for (int i = start; i <= numbers.Length - r_tmp; i++)
+        {
+            combinationTmp.Add(numbers[i]);
+            CreateCombinations(numbers, r_tmp - 1, i + 1, combinationTmp, result);
+            combinationTmp.RemoveAt(combinationTmp.Count - 1);
+        }
+    }
     }
 }
